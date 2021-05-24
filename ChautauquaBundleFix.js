@@ -1,5 +1,3 @@
-const { replace } = require("core-js/fn/symbol");
-
 let PageName = window.location.pathname.replace('/Online/', '');
 
 switch (PageName) {
