@@ -1,3 +1,5 @@
+const { replace } = require("core-js/fn/symbol");
+
 let PageName = window.location.pathname.replace('/Online/', '');
 
 switch (PageName) {
@@ -137,4 +139,5 @@ function replaceOrderQuestions() {
 
 function OrderQuestionsEntryPoint() {
     document.addEventListener('DOMContentLoaded', replaceOrderQuestions);
+    setInterval(replaceOrderQuestions, 1000);
 }
