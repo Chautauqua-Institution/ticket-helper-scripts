@@ -49,7 +49,7 @@ function SaveBundleInfo() {
     ChkBoxes.forEach((box) => {
         if (box.checked == true) {
             let weekLbl = document.querySelector(`label[for="${box.value}"] > span.bundle-performance-description`)
-                .innerText.replace("Grounds Access Pass Week ", "");
+                .innerText.match(/Week ([A-z]+)/)[1];
             let weekNum = convWordToNum(weekLbl);
             weeks.push(weekNum);
         }
@@ -68,7 +68,7 @@ function SaveBundleInfo() {
 function BundleSelectEntryPoint() {
     // Check DOM if valid bundle for code injection
     let BundleTitle = document.querySelector('#bundle-item-title').innerText;
-    if (!BundleTitle.includes("Grounds Access Pass")) {
+    if (!(BundleTitle.includes("Grounds Access Pass") || BundleTitle.includes("Traditional Gate Pass"))) {
         return;
     }
     // Check if logged in, redirect if not
@@ -77,13 +77,16 @@ function BundleSelectEntryPoint() {
         return;
     }
 
+    // Hide Question Div
+    document.querySelectorAll(".bundle-element-container")[0].style.display = 'none';
+
     // Code injection starts here
     document.querySelector("form[name=bundlesForm]")
         .addEventListener("submit", SaveBundleInfo);
     document.querySelectorAll(".bundle-element-container")[1]
         .querySelectorAll("input[type=checkbox]").forEach(box => {
             box.addEventListener("change", SaveBundleInfo);
-        })
+        });
 }
 
 function BundleResultEntryPoint() {
@@ -119,11 +122,11 @@ function BundleResultEntryPoint() {
         });
 }
 
-function replaceOrderQuestions(){
+function replaceOrderQuestions() {
     // Check for bundles
     const processedBundles = JSON.parse(sessionStorage.getItem('processedBundles') || '{}');
     for (const [id, bundle] of Object.entries(processedBundles)) {
-        let formsetInput = document.querySelector(`input[type=hidden][name^="BOset::WSorder::Bundles::${id}"]`)
+        let formsetInput = document.querySelector(`input[type=hidden][name^="BOset::WSorder::Bundles::${id}"]`);
         if (formsetInput === null) {
             continue;
         }
@@ -133,5 +136,5 @@ function replaceOrderQuestions(){
 }
 
 function OrderQuestionsEntryPoint() {
-    document.addEventListener('DOMContentLoaded', replaceOrderQuestions)
+    document.addEventListener('DOMContentLoaded', replaceOrderQuestions);
 }
