@@ -4,8 +4,11 @@ jobs:
   Deployment:
     runs-on: ubuntu-latest
     steps:
-    - name: Purge-CDN
+    - name: Purge CDN
+      id: purge-bundle
       uses: fjogeleit/http-request-action@master
       with:
         url: 'https://purge.jsdelivr.net/gh/Chautauqua-Institution/ticket-helper-scripts@main/ChautauquaBundleFix.js'
         method: 'GET'
+    - name: Show Response
+      run: echo ${{ steps.purge-bundle.outputs.response }}
