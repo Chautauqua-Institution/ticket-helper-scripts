@@ -87,6 +87,7 @@ function BundleSelectEntryPoint() {
         .querySelectorAll("input[type=checkbox]").forEach(box => {
             box.addEventListener("change", SaveBundleInfo);
         });
+    setInterval(SaveBundleInfo, 300);
 }
 
 function BundleResultEntryPoint() {
