@@ -21,6 +21,14 @@
         executeContactSelectOverride();
     }
 
+    if(window.location.pathname == "/Online/shoppingCart.asp"){
+        removeQuestionEntryFromCart();
+    }
+
+    if(window.location.pathname == "/Online/bundleResult.asp"){
+        removeQuestionEntryFromBundleResult();
+    }
+
 })();
 
 
@@ -131,4 +139,35 @@ function buildContactsDropdown(contacts, count, inputId){
     }
 
     return contactSelect
+}
+
+/**
+ *  Remove the question entries from a pass
+ *  from the cart listing
+ */
+function removeQuestionEntryFromCart(){
+    itemsToRemove = document.querySelectorAll(".bundle-item.admission-row");
+    for(var x = 0; x < itemsToRemove.length; x++){
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
+        if (bundleAdmissionNameElement.innerHTML.includes("Gate Pass Question")){
+            itemsToRemove[x].style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  Remove the question entries from a pass
+ *  from the cart listing
+ */
+ function removeQuestionEntryFromBundleResult(){
+    itemsToRemove = document.querySelectorAll(".bundle-result-item.section-box-item");
+    for(var x = 0; x < itemsToRemove.length; x++){
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
+        if (bundleAdmissionNameElement.innerHTML.includes("Gate Pass Question")){
+            itemsToRemove[x].style.display = "none";
+        }
+    }
 }
