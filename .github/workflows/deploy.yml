@@ -1,0 +1,11 @@
+name: JSDelivr Deploy
+on: [push]
+jobs:
+  Deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Purge-CDN
+      uses: fjogeleit/http-request-action@master
+      with:
+        url: 'https://purge.jsdelivr.net/gh/Chautauqua-Institution/ticket-helper-scripts@main/ChautauquaBundleFix.js'
+        method: 'GET'
