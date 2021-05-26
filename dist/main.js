@@ -253,10 +253,12 @@ function OrderQuestionsEntryPoint() {
 
   if (window.location.pathname == "/Online/shoppingCart.asp") {
     removeQuestionEntryFromCart();
+    removePassDetailsFromCart();
   }
 
   if (window.location.pathname == "/Online/bundleResult.asp") {
     removeQuestionEntryFromBundleResult();
+    removePassDetailsFromBundleResult();
   }
 })();
 /**
