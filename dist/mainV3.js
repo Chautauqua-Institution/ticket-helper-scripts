@@ -158,10 +158,8 @@ function BundleSelectEntryPoint() {
   if (document.querySelector("#utility-menu-item-logout") === null) {
     window.location = "/Online/login.asp?targetPage=bundleSelect.asp";
     return;
-  } // Hide Question Div
+  } // Code injection starts here
 
-
-  document.querySelectorAll(".bundle-element-container")[0].style.display = 'none'; // Code injection starts here
 
   document.querySelector("form[name=bundlesForm]").addEventListener("submit", SaveBundleInfo);
   document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]").forEach(function (box) {
@@ -243,7 +241,16 @@ function OrderQuestionsEntryPoint() {
  *
  */
 (function () {
-  console.log('CHQ Contact Loader v0.1 Loaded'); // Check if we are on the right page
+  // Look for these strings to remove rows/entries
+  // as we want to hide the question rows from cart/bundleResult etc.
+  var QUESTION_NAMES_TO_REMOVE = ['Guest Information', 'Parking Pass']; // Look for these strings to remove the details associated with these
+  // passes. We don't care abnout location/section/seat for these values
+
+  var PASS_TYPES_TO_REMOVE_DETAILS = ['Grounds Access Pass', 'Traditional Gate Pass', 'Main Lot Parking']; // Look for bundle elements with bundle-element-titles
+  // that contain any of these strings and remove them
+
+  var BUNDLE_ELEMENTS_TO_REMOVE = ['Question', 'Weekend Pass'];
+  console.log('CHQ Contact Loader v0.2 Loaded'); // Check if we are on the right page
 
   questionHeader = document.querySelector("h1#questions-title");
 
@@ -252,13 +259,23 @@ function OrderQuestionsEntryPoint() {
   }
 
   if (window.location.pathname == "/Online/shoppingCart.asp") {
-    removeQuestionEntryFromCart();
-    removePassDetailsFromCart();
+    removeQuestionEntryFromCart(QUESTION_NAMES_TO_REMOVE);
+    removePassDetailsFromCart(PASS_TYPES_TO_REMOVE_DETAILS);
   }
 
   if (window.location.pathname == "/Online/bundleResult.asp") {
-    removeQuestionEntryFromBundleResult();
-    removePassDetailsFromBundleResult();
+    removeQuestionEntryFromBundleResult(QUESTION_NAMES_TO_REMOVE);
+    removePassDetailsFromBundleResult(PASS_TYPES_TO_REMOVE_DETAILS);
+  }
+
+  if (window.location.pathname == "/Online/bundleSelect.asp") {
+    console.log('tws');
+    hideQuestionElementForBundles(BUNDLE_ELEMENTS_TO_REMOVE);
+  }
+
+  if (window.location.pathname == "/Online/viewOrder.asp") {
+    removeQuestionEntryFromViewOrder(QUESTION_NAMES_TO_REMOVE);
+    removePassDetailsFromViewOrder(PASS_TYPES_TO_REMOVE_DETAILS);
   }
 })();
 /**
@@ -279,9 +296,16 @@ function executeContactSelectOverride() {
     for (c = 0; c < contact_divs.length; c++) {
       var contact = {
         "id": contact_divs[c].querySelector("input[name='BOset::WScustomer::Customer::default_contact_id']").value,
-        "name": contact_divs[c].querySelector("span.contact-name > label > span").innerHTML.trim(),
-        "email": contact_divs[c].querySelector("span.contact-email > a.search").innerHTML
+        "name": contact_divs[c].querySelector("span.contact-name > label > span").innerHTML.trim()
       };
+      contactEmail = contact_divs[c].querySelector("span.contact-email > a.search");
+
+      if (contactEmail !== null) {
+        contact["email"] = contactEmail.innerHTML;
+      } else {
+        contact["email"] = "";
+      }
+
       var nameSegments = contact['name'].split(',');
       contact['name_formatted'] = nameSegments[1].trim() + ' ' + nameSegments[0].trim();
       contacts[c] = contact;
@@ -334,7 +358,13 @@ function buildContactsDropdown(contacts, count, inputId) {
     console.log('test2');
     var option = document.createElement("option");
     option.value = contacts[i]['id'] + ' ' + contacts[i]['name_formatted'];
-    option.text = contacts[i]['name_formatted'] + ' - ' + contacts[i]['email'];
+
+    if (contacts[i]['email'] != "") {
+      option.text = contacts[i]['name_formatted'] + ' - ' + contacts[i]['email'];
+    } else {
+      option.text = contacts[i]['name_formatted'];
+    }
+
     contactSelect.appendChild(option);
     console.log('test');
   }
@@ -347,14 +377,14 @@ function buildContactsDropdown(contacts, count, inputId) {
  */
 
 
-function removeQuestionEntryFromCart() {
+function removeQuestionEntryFromCart(NAMES) {
   itemsToRemove = document.querySelectorAll(".bundle-item.admission-row");
 
   for (var x = 0; x < itemsToRemove.length; x++) {
     console.log(itemsToRemove[x]);
     bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
 
-    if (bundleAdmissionNameElement.innerHTML.includes("Gate Pass Question")) {
+    if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
       itemsToRemove[x].style.display = "none";
     }
   }
@@ -365,14 +395,14 @@ function removeQuestionEntryFromCart() {
  */
 
 
-function removeQuestionEntryFromBundleResult() {
+function removeQuestionEntryFromBundleResult(NAMES) {
   itemsToRemove = document.querySelectorAll(".bundle-result-item.section-box-item");
 
   for (var x = 0; x < itemsToRemove.length; x++) {
     console.log(itemsToRemove[x]);
     bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
 
-    if (bundleAdmissionNameElement.innerHTML.includes("Gate Pass Question")) {
+    if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
       itemsToRemove[x].style.display = "none";
     }
   }
@@ -384,14 +414,14 @@ function removeQuestionEntryFromBundleResult() {
  */
 
 
-function removePassDetailsFromCart() {
+function removePassDetailsFromCart(NAMES) {
   bundleItems = document.querySelectorAll(".bundle-item.admission-row");
 
   for (var x = 0; x < bundleItems.length; x++) {
     var bundleName = bundleItems[x].querySelector(".bundle-event-name");
     var bundleNameText = bundleName.innerHTML;
 
-    if (bundleNameText.includes("Gate Pass") || bundleNameText.includes("Parking")) {
+    if (ifStringIn(bundleNameText, NAMES)) {
       bundleItems[x].querySelector('.bundle-event-table').style.display = "none";
     }
   }
@@ -403,15 +433,92 @@ function removePassDetailsFromCart() {
  */
 
 
-function removePassDetailsFromBundleResult() {
+function removePassDetailsFromBundleResult(NAMES) {
   itemsToRemove = document.querySelectorAll(".bundle-result-item.section-box-item");
 
   for (var x = 0; x < itemsToRemove.length; x++) {
     console.log(itemsToRemove[x]);
     bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
 
-    if (bundleAdmissionNameElement.innerHTML.includes("Gate Pass")) {
+    if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
       itemsToRemove[x].querySelector('.seat-location').style.display = "none";
+    }
+  }
+}
+/**
+ *  A helper function to determine if a given string
+ *  is in an array of strings
+ * @param {*} value
+ * @param {*} valueArray
+ * @returns
+ */
+
+
+function ifStringIn(value, valueArray) {
+  console.log(value);
+
+  if (value === null) {
+    return false;
+  }
+
+  for (var x = 0; x < valueArray.length; x++) {
+    if (value.includes(valueArray[x])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+/**
+ *  Hide the question element for the bundle
+ *  select page
+ */
+
+
+function hideQuestionElementForBundles(NAMES) {
+  elements = document.querySelectorAll('div.bundle-element-container');
+  console.log(elements);
+
+  for (var x = 0; x < elements.length; x++) {
+    if (ifStringIn(elements[x].querySelector('.bundle-element-title').innerHTML, NAMES)) {
+      elements[x].style.display = "none";
+    }
+  }
+}
+/**
+ *  Remove the question entries from a pass
+ *  from the view order page
+ */
+
+
+function removeQuestionEntryFromViewOrder(NAMES) {
+  itemsToRemove = document.querySelectorAll(".bundle-admission.section-box-item");
+
+  for (var x = 0; x < itemsToRemove.length; x++) {
+    console.log(itemsToRemove[x]);
+    bundleAdmissionNameElement = itemsToRemove[x].querySelector(".section-box-item-details");
+
+    if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
+      itemsToRemove[x].style.display = "none";
+    }
+  }
+}
+/**
+ *  Removes the details from passes that
+ *  dont make sense for parking or gate
+ *  passes.
+ */
+
+
+function removePassDetailsFromViewOrder(NAMES) {
+  bundleItems = document.querySelectorAll(".bundle-admission.section-box-item");
+
+  for (var x = 0; x < bundleItems.length; x++) {
+    var bundleName = bundleItems[x].querySelector(".section-box-item-details");
+    var bundleNameText = bundleName.innerHTML;
+
+    if (ifStringIn(bundleNameText, NAMES)) {
+      bundleItems[x].querySelector('.section-box-item-details.last-column').style.display = "none";
     }
   }
 }
