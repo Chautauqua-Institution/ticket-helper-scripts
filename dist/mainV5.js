@@ -248,7 +248,7 @@ function BundleSelectEntryPoint() {
   // Check DOM if valid bundle for code injection
   var BundleTitle = document.querySelector('#bundle-item-title').innerText;
 
-  if (!(BundleTitle.includes("Grounds Access Pass") || BundleTitle.includes("Traditional Gate Pass") || BundleTitle.includes("Weekend Grounds Pass"))) {
+  if (!(BundleTitle.includes("Grounds Access Pass") || BundleTitle.includes("Traditional Gate Pass") || BundleTitle.includes("Weekend") && BundleTitle.includes("Grounds Pass"))) {
     return;
   } // Check if logged in, redirect if not
 
@@ -15427,7 +15427,7 @@ if (!global.fetch) {
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -15441,14 +15441,14 @@ if (!global.fetch) {
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	!function() {
@@ -15461,7 +15461,7 @@ if (!global.fetch) {
 /******/ 			}
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/global */
 /******/ 	!function() {
 /******/ 		__webpack_require__.g = (function() {
@@ -15473,14 +15473,14 @@ if (!global.fetch) {
 /******/ 			}
 /******/ 		})();
 /******/ 	}();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	!function() {
 /******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
 /******/ 	}();
-/******/ 	
+/******/
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	__webpack_require__(7147);
@@ -15489,7 +15489,7 @@ if (!global.fetch) {
 /******/ 	__webpack_require__(5666);
 /******/ 	__webpack_require__(420);
 /******/ 	var __webpack_exports__ = __webpack_require__(2191);
-/******/ 	
+/******/
 /******/ })()
 ;
 //# sourceMappingURL=https://chq.org/ticketscripts/main.js.map
