@@ -125,28 +125,100 @@ function convWordToNum(word) {
   }
 }
 
+function findWeek(date) {
+  var WEEKS = {
+    1: {
+      start: new Date(2021, 5, 26),
+      end: new Date(2021, 6, 3)
+    },
+    2: {
+      start: new Date(2021, 6, 3),
+      end: new Date(2021, 6, 10)
+    },
+    3: {
+      start: new Date(2021, 6, 10),
+      end: new Date(2021, 6, 17)
+    },
+    4: {
+      start: new Date(2021, 6, 17),
+      end: new Date(2021, 6, 24)
+    },
+    5: {
+      start: new Date(2021, 6, 24),
+      end: new Date(2021, 6, 31)
+    },
+    6: {
+      start: new Date(2021, 6, 31),
+      end: new Date(2021, 7, 7)
+    },
+    7: {
+      start: new Date(2021, 7, 7),
+      end: new Date(2021, 7, 14)
+    },
+    8: {
+      start: new Date(2021, 7, 14),
+      end: new Date(2021, 7, 21)
+    },
+    9: {
+      start: new Date(2021, 7, 21),
+      end: new Date(2021, 7, 29)
+    }
+  };
+
+  for (var weekNum = 1; weekNum < 10; weekNum++) {
+    var range = WEEKS[weekNum];
+
+    if (date >= range.start && date < range.end) {
+      return weekNum;
+    }
+  }
+
+  throw new Error("Date not found in week dataset");
+}
+
 function SaveBundleInfo() {
   var BundleTitle = document.querySelector("#bundle-item-title").innerText;
+  var bundle = {};
 
   if (BundleTitle.includes("Weekend Grounds Pass")) {
-    var bundle = {
+    bundle = {
       'name': BundleTitle,
       'display': 'name-only'
     };
-  } else {
+  } else if (BundleTitle.includes("Grounds Access Pass") && BundleTitle.includes("Days")) {
     // Grab checkboxes and pull selected
     var ChkBoxes = document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]");
-    var weeks = [];
+    var days = [];
     ChkBoxes.forEach(function (box) {
+      if (box.checked == true) {
+        var dayMatch = document.querySelector("label[for=\"".concat(box.value, "\"] > span.bundle-performance-date")).innerText.match(/\d{4}-(\d{2})-(\d{2})/);
+        var dayLbl = "".concat(dayMatch[1], "/").concat(dayMatch[2]);
+        days.push(dayLbl);
+      }
+    });
+    days.sort();
+    bundle = {
+      'name': BundleTitle,
+      'display': 'days',
+      'days': days
+    };
+  } else {
+    // Grab checkboxes and pull selected
+    var _ChkBoxes = document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]");
+
+    var weeks = [];
+
+    _ChkBoxes.forEach(function (box) {
       if (box.checked == true) {
         var weekLbl = document.querySelector("label[for=\"".concat(box.value, "\"] > span.bundle-performance-description")).innerText.match(/Week ([A-z]+)/)[1];
         var weekNum = convWordToNum(weekLbl);
         weeks.push(weekNum);
       }
     });
+
     weeks.sort(); // Create Bundle Object
 
-    var bundle = {
+    bundle = {
       'name': BundleTitle,
       'display': 'weeks',
       'weeks': weeks
@@ -155,6 +227,21 @@ function SaveBundleInfo() {
 
 
   sessionStorage.setItem('unprocessedBundle', JSON.stringify(bundle));
+}
+
+function GroupDaysByWeeks() {
+  var elmCont = document.querySelectorAll(".bundle-element-container")[1]; // Inject Week Containers
+
+  for (var i = 9; i > 0; i--) {
+    elmCont.querySelector('.bundle-element-title').insertAdjacentHTML('afterend', "<div class=\"mt-3 border-bottom\">\n                <a class=\"text-reset text-decoration-none\" data-toggle=\"collapse\" href=\"#collapse-week-".concat(i, "\" role=\"button\" aria-expanded=\"false\" aria-controls=\"collapse-week-").concat(i, "\">\n                    <h5>Week ").concat(i, "</h5>\n                </a>\n            </div>\n            <div id=\"collapse-week-").concat(i, "\" class=\"collapse\"></div>"));
+  }
+
+  var BundleElms = elmCont.querySelectorAll('.bundle-elements');
+  BundleElms.forEach(function (elm) {
+    var dateMatch = elm.querySelector("span.bundle-performance-date").innerText.match(/(\d{4})-(\d{2})-(\d{2})/);
+    var date = new Date(dateMatch[1], dateMatch[2] - 1, dateMatch[3]);
+    elmCont.querySelector("#collapse-week-".concat(findWeek(date))).appendChild(elm);
+  });
 }
 
 function BundleSelectEntryPoint() {
@@ -171,6 +258,10 @@ function BundleSelectEntryPoint() {
     return;
   } // Code injection starts here
 
+
+  if (BundleTitle.includes("Grounds Access Pass") && BundleTitle.includes("Days")) {
+    GroupDaysByWeeks();
+  }
 
   document.querySelector("form[name=bundlesForm]").addEventListener("submit", SaveBundleInfo);
   document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]").forEach(function (box) {
@@ -229,6 +320,8 @@ function replaceOrderQuestions() {
 
     if (bundle.display == 'weeks') {
       formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name, "<br/><small class=\"unstyled\">Weeks ").concat(bundle.weeks.join(', '), "</small>");
+    } else if (bundle.display == 'days') {
+      formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name, "<br/><small class=\"unstyled\">Days ").concat(bundle.days.join(', '), "</small>");
     } else if (bundle.display == 'name-only') {
       formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name);
     }
