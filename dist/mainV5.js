@@ -481,7 +481,7 @@ function buildContactsDropdown(contacts, count, inputId) {
   for (var i = 0; i < contacts.length; i++) {
     console.log('test2');
     var option = document.createElement("option");
-    option.value = contacts[i]['id'] + ' ' + contacts[i]['name_formatted'];
+    option.value = contacts[i]['id'] + ' - ' + contacts[i]['name_formatted'];
 
     if (contacts[i]['email'] != "") {
       option.text = contacts[i]['name_formatted'] + ' - ' + contacts[i]['email'];
