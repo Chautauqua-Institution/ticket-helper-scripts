@@ -1,5 +1,5 @@
 /**
- *  Chautauqua Contact Loader - v0.1
+ *  Chautauqua Contact Loader - v1.1
  *
  *  Chautauqua Institution Information Technology
  *
@@ -11,124 +11,227 @@
  */
 
 
- (function (){
+ (function() {
 
-    console.log('CHQ Contact Loader v0.1 Loaded');
+    // Look for these strings to remove rows/entries
+    // as we want to hide the question rows from cart/bundleResult etc.
+    var QUESTION_NAMES_TO_REMOVE = [
+        'Guest Information',
+        'Parking Pass'
+    ]
 
-    // Check if we are on the right page
-    questionHeader = document.querySelector("h1#questions-title");
-    if(questionHeader !== undefined){
-        executeContactSelectOverride();
+    // Look for these strings to remove the details associated with these
+    // passes. We don't care abnout location/section/seat for these values
+    var PASS_TYPES_TO_REMOVE_DETAILS = [
+        'Grounds Access Pass',
+        'Traditional Gate Pass',
+        'Main Lot Parking'
+    ]
+
+    // Look for bundle elements with bundle-element-titles
+    // that contain any of these strings and remove them
+    var BUNDLE_ELEMENTS_TO_REMOVE = [
+        'Question',
+        'Weekend Pass'
+    ]
+
+    console.log('CHQ Contact Loader v0.2 Loaded');
+
+    if (window.location.pathname == "/Online/shoppingCart.asp") {
+        removeQuestionEntryFromCart(QUESTION_NAMES_TO_REMOVE);
+        removePassDetailsFromCart(PASS_TYPES_TO_REMOVE_DETAILS);
+    }
+
+    if (window.location.pathname == "/Online/bundleResult.asp") {
+        removeQuestionEntryFromBundleResult(QUESTION_NAMES_TO_REMOVE);
+        removePassDetailsFromBundleResult(PASS_TYPES_TO_REMOVE_DETAILS);
+    }
+
+    if (window.location.pathname == "/Online/bundleSelect.asp") {
+        console.log('tws')
+        hideQuestionElementForBundles(BUNDLE_ELEMENTS_TO_REMOVE);
+    }
+
+    if(window.location.pathname == "/Online/orderQuestions.asp"){
+        cleanPassQuestions();
+    }
+
+    if(window.location.pathname == "/Online/viewOrder.asp"){
+        removeQuestionEntryFromViewOrder(QUESTION_NAMES_TO_REMOVE);
+        removePassDetailsFromViewOrder(PASS_TYPES_TO_REMOVE_DETAILS);
     }
 
 })();
 
 
 /**
- *  Add a contact select for the specified input
+ *  Remove the question entries from a pass
+ *  from the cart listing
  */
-function executeContactSelectOverride(){
-    getContacts().then( contacts => {
-        valid_questions = document.querySelectorAll("input[title='Guest First &amp; Last Name']")
+function removeQuestionEntryFromCart(NAMES) {
+    itemsToRemove = document.querySelectorAll(".bundle-item.admission-row");
+    for (var x = 0; x < itemsToRemove.length; x++) {
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
+        if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
+            itemsToRemove[x].style.display = "none";
+        }
+    }
+}
 
-        for(q = 0; q < valid_questions.length; q++){
 
-            var contactSelect = buildContactsDropdown(contacts, q, valid_questions[q].id);
+/**
+ *  Remove the question entries from a pass
+ *  from the cart listing
+ */
+function removeQuestionEntryFromBundleResult(NAMES) {
+    itemsToRemove = document.querySelectorAll(".bundle-result-item.section-box-item");
+    for (var x = 0; x < itemsToRemove.length; x++) {
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
+        if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
+            itemsToRemove[x].style.display = "none";
+        }
+    }
+}
 
-            valid_questions[q].parentNode.insertBefore(contactSelect, valid_questions[q]);
-            valid_questions[q].setAttribute('type', 'hidden');
 
-            contactSelect.addEventListener('change', function(){
-                var targetInputId = this.id.split('%%%chqcl-')[0];
-                var targetInput = document.getElementById(targetInputId);
-                targetInput.value = this.value;
-                console.log('worked')
-            });
+/**
+ *  Removes the details from passes that
+ *  dont make sense for parking or gate
+ *  passes.
+ */
+function removePassDetailsFromCart(NAMES) {
+    bundleItems = document.querySelectorAll(".bundle-item.admission-row");
+    for (var x = 0; x < bundleItems.length; x++){
+        var bundleName = bundleItems[x].querySelector(".bundle-event-name");
+        var bundleNameText = bundleName.innerHTML;
+        if (ifStringIn(bundleNameText, NAMES)){
+            bundleItems[x].querySelector('.bundle-event-table').style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  Removes the details from passes that
+ *  dont make sense for parking or gate
+ *  passes.
+ */
+ function removePassDetailsFromBundleResult(NAMES) {
+    itemsToRemove = document.querySelectorAll(".bundle-result-item.section-box-item");
+    for (var x = 0; x < itemsToRemove.length; x++) {
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".bundle-event-name");
+        if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
+            itemsToRemove[x].querySelector('.seat-location').style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  A helper function to determine if a given string
+ *  is in an array of strings
+ * @param {*} value
+ * @param {*} valueArray
+ * @returns
+ */
+function ifStringIn(value, valueArray){
+
+    console.log(value)
+
+    if (value === null){
+        return false;
+    }
+
+    for(var x = 0; x < valueArray.length; x++){
+        if(value.includes(valueArray[x])){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ *  Hide the question element for the bundle
+ *  select page
+ */
+function hideQuestionElementForBundles(NAMES){
+    elements = document.querySelectorAll('div.bundle-element-container');
+    console.log(elements)
+    for(var x = 0; x < elements.length; x++){
+        if(ifStringIn(elements[x].querySelector('.bundle-element-title').innerHTML, NAMES)){
+            elements[x].style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  Remove the question entries from a pass
+ *  from the view order page
+ */
+ function removeQuestionEntryFromViewOrder(NAMES) {
+    itemsToRemove = document.querySelectorAll(".bundle-admission.section-box-item");
+    for (var x = 0; x < itemsToRemove.length; x++) {
+        console.log(itemsToRemove[x])
+        bundleAdmissionNameElement = itemsToRemove[x].querySelector(".section-box-item-details");
+        if (ifStringIn(bundleAdmissionNameElement.innerHTML, NAMES)) {
+            itemsToRemove[x].style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  Removes the details from passes that
+ *  dont make sense for parking or gate
+ *  passes.
+ */
+function removePassDetailsFromViewOrder(NAMES) {
+    bundleItems = document.querySelectorAll(".bundle-admission.section-box-item");
+    for (var x = 0; x < bundleItems.length; x++){
+        var bundleName = bundleItems[x].querySelector(".section-box-item-details");
+        var bundleNameText = bundleName.innerHTML;
+        if (ifStringIn(bundleNameText, NAMES)){
+            bundleItems[x].querySelector('.section-box-item-details.last-column').style.display = "none";
+        }
+    }
+}
+
+
+/**
+ *  Clean and format the pass questions
+ */
+function cleanPassQuestions(){
+
+    var passCard = document.querySelectorAll("div.ticket-question");
+
+    for(var i = 0; i < passCard.length; i++){
+
+        // Hide the Guest Information Question Bundle Item
+        var guestInfoBundleItems = passCard[i].querySelectorAll("li.question > div");
+        for(var gi = 0; gi < guestInfoBundleItems.length; gi++){
+            if(guestInfoBundleItems[gi].innerText == 'Guest Information'){
+                guestInfoBundleItems[gi].style.display = 'none';
+            }
 
         }
 
-    });
-}
+        var button = passCard[i].querySelector('div.btn-group');
+        var new_button = button.cloneNode(true);
+        button.style.display = 'none';
 
+        var select = passCard[i].querySelector("select[title='Guest First & Last Name']");
+        select.parentNode.parentNode.insertBefore(new_button, select.parentNode.nextSibling);
 
-/**
- *  Get the Contacts of the Customer by making
- *  a request to the account information page
- *  and parsing the data
- *
- * @returns object[] - Array of Contact objects including id, name, email
- */
-async function getContacts(){
-    contacts = await fetch('/Online/accountInformation.asp')
-        .then(response => response.text())
-        .then(data => {
+        new_button.style.textAlign = "center";
+        new_button.style.marginTop = "10px";
+        new_button.style.display = "block";
 
-            // TODO: Implement check to see if signed in or out
-
-            var parser = new DOMParser();
-            var accountDocument = parser.parseFromString(data, "text/html");
-
-            var contacts = [];
-            var contact_divs = accountDocument.documentElement.querySelectorAll("div#contacts-box > div.contact");
-
-            for(c = 0; c < contact_divs.length; c++){
-
-                var contact = {
-                    "id": contact_divs[c].querySelector("input[name='BOset::WScustomer::Customer::default_contact_id']").value,
-                    "name": contact_divs[c].querySelector("span.contact-name > label > span").innerHTML.trim(),
-                    "email": contact_divs[c].querySelector("span.contact-email > a.search").innerHTML
-                }
-
-                var nameSegments = contact['name'].split(',');
-                contact['name_formatted'] = nameSegments[1].trim() + ' ' + nameSegments[0].trim();
-
-                contacts[c] = contact;
-            }
-
-            console.log(contacts);
-            return contacts
-    });
-    return contacts
-}
-
-
-/**
- *  Build the Select Element with Contact
- *  options for the user to choose
- *
- * @param {object[]} contacts
- * @param {number} count
- * @param {string} inputId
- * @returns Element
- */
-function buildContactsDropdown(contacts, count, inputId){
-
-    // Build the ID of the Select Element to match the original
-    // text input ID
-    var contactSelectId = inputId + "%%%chqcl-" + count.toString();
-
-    // Create the Select Element
-    var contactSelect = document.createElement("select");
-    contactSelect.setAttribute('id', contactSelectId);
-    contactSelect.setAttribute('class', "chqcl-contact-select form-control");
-
-    // Create the default option
-    var option = document.createElement("option");
-    option.text = "Select a Contact";
-    option.setAttribute('selected', true);
-    option.setAttribute('disabled', true);
-    option.setAttribute('hidden', true);
-    contactSelect.appendChild(option);
-
-    // Create an option for each contact
-    for (var i = 0; i < contacts.length; i++) {
-        console.log('test2')
-        var option = document.createElement("option");
-        option.value = contacts[i]['id'] + ' ' + contacts[i]['name_formatted'];
-        option.text = contacts[i]['name_formatted'] + ' - ' + contacts[i]['email'];
-        contactSelect.appendChild(option);
-        console.log('test');
     }
 
-    return contactSelect
 }

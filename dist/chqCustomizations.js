@@ -1,92 +1,14 @@
 /******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 420:
+/***/ 4992:
 /***/ (function() {
-
-"use strict";
-
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
-function _iterableToArrayLimit(arr, i) {
-  var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]);
-
-  if (_i == null) return;
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-
-  var _s, _e;
-
-  try {
-    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-
-  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-    arr2[i] = arr[i];
-  }
-
-  return arr2;
-}
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
-
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/slicedToArray.js
-
-
-
-
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-}
-;// CONCATENATED MODULE: ./web/ChautauquaBundleFix.js
 
 var PageName = window.location.pathname.replace('/Online/', '');
 
 switch (PageName) {
   case "bundleSelect.asp":
     BundleSelectEntryPoint();
-    break;
-
-  case "bundleResult.asp":
-    BundleResultEntryPoint();
-    break;
-
-  case "orderQuestions.asp":
-    OrderQuestionsEntryPoint();
     break;
 }
 
@@ -176,59 +98,6 @@ function findWeek(date) {
   throw new Error("Date not found in week dataset");
 }
 
-function SaveBundleInfo() {
-  var BundleTitle = document.querySelector("#bundle-item-title").innerText;
-  var bundle = {};
-
-  if (BundleTitle.includes("Weekend") && BundleTitle.includes("Grounds Pass")) {
-    bundle = {
-      'name': BundleTitle,
-      'display': 'name-only'
-    };
-  } else if (BundleTitle.includes("Grounds Access Pass") && BundleTitle.includes("Days")) {
-    // Grab checkboxes and pull selected
-    var ChkBoxes = document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]");
-    var days = [];
-    ChkBoxes.forEach(function (box) {
-      if (box.checked == true) {
-        var dayMatch = document.querySelector("label[for=\"".concat(box.value, "\"] > span.bundle-performance-date")).innerText.match(/\d{4}-(\d{2})-(\d{2})/);
-        var dayLbl = "".concat(dayMatch[1], "/").concat(dayMatch[2]);
-        days.push(dayLbl);
-      }
-    });
-    days.sort();
-    bundle = {
-      'name': BundleTitle,
-      'display': 'days',
-      'days': days
-    };
-  } else {
-    // Grab checkboxes and pull selected
-    var _ChkBoxes = document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]");
-
-    var weeks = [];
-
-    _ChkBoxes.forEach(function (box) {
-      if (box.checked == true) {
-        var weekLbl = document.querySelector("label[for=\"".concat(box.value, "\"] > span.bundle-performance-description")).innerText.match(/Week ([A-z]+)/)[1];
-        var weekNum = convWordToNum(weekLbl);
-        weeks.push(weekNum);
-      }
-    });
-
-    weeks.sort(); // Create Bundle Object
-
-    bundle = {
-      'name': BundleTitle,
-      'display': 'weeks',
-      'weeks': weeks
-    };
-  } // Save
-
-
-  sessionStorage.setItem('unprocessedBundle', JSON.stringify(bundle));
-}
-
 function GroupDaysByWeeks() {
   var elmCont = document.querySelectorAll(".bundle-element-container")[1]; // Inject Week Containers
 
@@ -250,87 +119,12 @@ function BundleSelectEntryPoint() {
 
   if (!(BundleTitle.includes("Grounds Access Pass") || BundleTitle.includes("Traditional Gate Pass") || BundleTitle.includes("Weekend") && BundleTitle.includes("Grounds Pass"))) {
     return;
-  } // Check if logged in, redirect if not
-
-
-  if (document.querySelector("#utility-menu-item-logout") === null) {
-    window.location = "/Online/login.asp?targetPage=bundleSelect.asp";
-    return;
   } // Code injection starts here
 
 
   if (BundleTitle.includes("Grounds Access Pass") && BundleTitle.includes("Days")) {
     GroupDaysByWeeks();
   }
-
-  document.querySelector("form[name=bundlesForm]").addEventListener("submit", SaveBundleInfo);
-  document.querySelectorAll(".bundle-element-container")[1].querySelectorAll("input[type=checkbox]").forEach(function (box) {
-    box.addEventListener("change", SaveBundleInfo);
-  });
-  setTimeout(SaveBundleInfo, 1000);
-}
-
-function BundleResultEntryPoint() {
-  // Check for an unprocessed bundle. Exit if not found.
-  var bundle = JSON.parse(sessionStorage.getItem('unprocessedBundle'));
-
-  if (bundle === null) {
-    return;
-  } // Grab page
-
-
-  fetch('/Online/orderQuestions.asp').then(function (response) {
-    return response.text();
-  }).then(function (data) {
-    // Scrape orderQuestions ahead of time, and pull a list of bundles
-    var parser = new DOMParser();
-    var qDoc = parser.parseFromString(data, "text/html");
-    var elms = qDoc.documentElement.querySelectorAll('input[type=text][name^="BOset::WSorder::Bundle"]');
-    var qBundleIds = Array.from(elms).map(function (elm) {
-      return elm.name.match(/Bundles::([A-z0-9\-]+)/)[1];
-    }); // Compare to bundles in storage
-
-    var processedBundles = JSON.parse(sessionStorage.getItem('processedBundles') || '{}');
-    var pBundleIds = Object.keys(processedBundles);
-    var difference = qBundleIds.filter(function (x) {
-      return !pBundleIds.includes(x);
-    });
-    difference.forEach(function (id) {
-      processedBundles[id] = bundle;
-    }); // Save back to storage
-
-    sessionStorage.setItem('processedBundles', JSON.stringify(processedBundles));
-  });
-}
-
-function replaceOrderQuestions() {
-  // Check for bundles
-  var processedBundles = JSON.parse(sessionStorage.getItem('processedBundles') || '{}');
-
-  for (var _i = 0, _Object$entries = Object.entries(processedBundles); _i < _Object$entries.length; _i++) {
-    var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
-        id = _Object$entries$_i[0],
-        bundle = _Object$entries$_i[1];
-
-    var formsetInput = document.querySelector("input[type=hidden][name^=\"BOset::WSorder::Bundles::".concat(id, "\"]"));
-
-    if (formsetInput === null) {
-      continue;
-    }
-
-    if (bundle.display == 'weeks') {
-      formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name, "<br/><small class=\"unstyled\">Weeks ").concat(bundle.weeks.join(', '), "</small>");
-    } else if (bundle.display == 'days') {
-      formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name, "<br/><small class=\"unstyled\">Days ").concat(bundle.days.join(', '), "</small>");
-    } else if (bundle.display == 'name-only') {
-      formsetInput.closest(".admission-section").firstElementChild.innerHTML = "".concat(bundle.name);
-    }
-  }
-}
-
-function OrderQuestionsEntryPoint() {
-  document.addEventListener('DOMContentLoaded', replaceOrderQuestions);
-  setInterval(replaceOrderQuestions, 1000);
 }
 
 /***/ }),
@@ -359,13 +153,7 @@ function OrderQuestionsEntryPoint() {
   // that contain any of these strings and remove them
 
   var BUNDLE_ELEMENTS_TO_REMOVE = ['Question', 'Weekend Pass'];
-  console.log('CHQ Contact Loader v0.2 Loaded'); // Check if we are on the right page
-
-  questionHeader = document.querySelector("h1#questions-title");
-
-  if (questionHeader !== undefined) {
-    executeContactSelectOverride();
-  }
+  console.log('CHQ Contact Loader v0.2 Loaded');
 
   if (window.location.pathname == "/Online/shoppingCart.asp") {
     removeQuestionEntryFromCart(QUESTION_NAMES_TO_REMOVE);
@@ -382,119 +170,15 @@ function OrderQuestionsEntryPoint() {
     hideQuestionElementForBundles(BUNDLE_ELEMENTS_TO_REMOVE);
   }
 
+  if (window.location.pathname == "/Online/orderQuestions.asp") {
+    cleanPassQuestions();
+  }
+
   if (window.location.pathname == "/Online/viewOrder.asp") {
     removeQuestionEntryFromViewOrder(QUESTION_NAMES_TO_REMOVE);
     removePassDetailsFromViewOrder(PASS_TYPES_TO_REMOVE_DETAILS);
   }
 })();
-/**
- *  Add a contact select for the specified input
- */
-
-
-function executeContactSelectOverride() {
-  fetch('/Online/accountInformation.asp').then(function (response) {
-    return response.text();
-  }).then(function (data) {
-    // TODO: Implement check to see if signed in or out
-    var parser = new DOMParser();
-    var accountDocument = parser.parseFromString(data, "text/html");
-    var contacts = [];
-    var contact_divs = accountDocument.documentElement.querySelectorAll("div#contacts-box > div.contact");
-
-    for (c = 0; c < contact_divs.length; c++) {
-      var contact = {
-        "id": contact_divs[c].querySelector("input[name='BOset::WScustomer::Customer::default_contact_id']").value,
-        "name": contact_divs[c].querySelector("span.contact-name > label > span").innerHTML.trim()
-      };
-      contactEmail = contact_divs[c].querySelector("span.contact-email > a.search");
-
-      if (contactEmail !== null) {
-        contact["email"] = contactEmail.innerHTML;
-      } else {
-        contact["email"] = "";
-      }
-
-      var nameSegments = contact['name'].split(',');
-      contact['name_formatted'] = nameSegments[1].trim() + ' ' + nameSegments[0].trim();
-      contacts[c] = contact;
-    }
-
-    console.log(contacts);
-    valid_questions = document.querySelectorAll("input[title='Guest First &amp; Last Name']");
-
-    for (q = 0; q < valid_questions.length; q++) {
-      var contactSelect = buildContactsDropdown(contacts, q, valid_questions[q].id);
-      valid_questions[q].parentNode.insertBefore(contactSelect, valid_questions[q]);
-      valid_questions[q].setAttribute('type', 'hidden');
-      contactSelect.addEventListener('change', function () {
-        var targetInputId = this.id.split('%%%chqcl-')[0];
-        var targetInput = document.getElementById(targetInputId);
-        targetInput.value = this.value;
-      });
-      var targetInputId = contactSelect.id.split('%%%chqcl-')[0];
-      var targetInput = document.getElementById(targetInputId);
-
-      if (targetInput.value != "") {
-        contactSelect.value = targetInput.value;
-      }
-
-      var a = document.createElement("a");
-      csrfToken = document.querySelector('input[name="sToken"]').value;
-      addContactLink = 'maintainContacts.asp?prevPage=orderQuestions.asp&sToken=' + csrfToken + '&tsAddContact';
-      a.setAttribute('href', "javascript:submitNewForm('" + addContactLink + "')");
-      a.innerHTML = "Add Contact";
-      a.style.textAlign = "center";
-      a.style.marginTop = "10px";
-      a.style.display = "block";
-      valid_questions[q].parentNode.parentNode.insertBefore(a, valid_questions[q].parentNode.nextSibling);
-    }
-  });
-}
-/**
- *  Build the Select Element with Contact
- *  options for the user to choose
- *
- * @param {object[]} contacts
- * @param {number} count
- * @param {string} inputId
- * @returns Element
- */
-
-
-function buildContactsDropdown(contacts, count, inputId) {
-  // Build the ID of the Select Element to match the original
-  // text input ID
-  var contactSelectId = inputId + "%%%chqcl-" + count.toString(); // Create the Select Element
-
-  var contactSelect = document.createElement("select");
-  contactSelect.setAttribute('id', contactSelectId);
-  contactSelect.setAttribute('class', "chqcl-contact-select form-control"); // Create the default option
-
-  var option = document.createElement("option");
-  option.text = "Select a Contact";
-  option.setAttribute('selected', true);
-  option.setAttribute('disabled', true);
-  option.setAttribute('hidden', true);
-  contactSelect.appendChild(option); // Create an option for each contact
-
-  for (var i = 0; i < contacts.length; i++) {
-    console.log('test2');
-    var option = document.createElement("option");
-    option.value = contacts[i]['id'] + ' - ' + contacts[i]['name_formatted'];
-
-    if (contacts[i]['email'] != "") {
-      option.text = contacts[i]['name_formatted'] + ' - ' + contacts[i]['email'];
-    } else {
-      option.text = contacts[i]['name_formatted'];
-    }
-
-    contactSelect.appendChild(option);
-    console.log('test');
-  }
-
-  return contactSelect;
-}
 /**
  *  Remove the question entries from a pass
  *  from the cart listing
@@ -644,6 +328,34 @@ function removePassDetailsFromViewOrder(NAMES) {
     if (ifStringIn(bundleNameText, NAMES)) {
       bundleItems[x].querySelector('.section-box-item-details.last-column').style.display = "none";
     }
+  }
+}
+/**
+ *  Clean and format the pass questions
+ */
+
+
+function cleanPassQuestions() {
+  var passCard = document.querySelectorAll("div.ticket-question");
+
+  for (var i = 0; i < passCard.length; i++) {
+    // Hide the Guest Information Question Bundle Item
+    var guestInfoBundleItems = passCard[i].querySelectorAll("li.question > div");
+
+    for (var gi = 0; gi < guestInfoBundleItems.length; gi++) {
+      if (guestInfoBundleItems[gi].innerText == 'Guest Information') {
+        guestInfoBundleItems[gi].style.display = 'none';
+      }
+    }
+
+    var button = passCard[i].querySelector('div.btn-group');
+    var new_button = button.cloneNode(true);
+    button.style.display = 'none';
+    var select = passCard[i].querySelector("select[title='Guest First & Last Name']");
+    select.parentNode.parentNode.insertBefore(new_button, select.parentNode.nextSibling);
+    new_button.style.textAlign = "center";
+    new_button.style.marginTop = "10px";
+    new_button.style.display = "block";
   }
 }
 
@@ -15487,9 +15199,9 @@ if (!global.fetch) {
 /******/ 	// This entry module used 'module' so it can't be inlined
 /******/ 	__webpack_require__(8594);
 /******/ 	__webpack_require__(5666);
-/******/ 	__webpack_require__(420);
+/******/ 	__webpack_require__(4992);
 /******/ 	var __webpack_exports__ = __webpack_require__(2191);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=https://chq.org/ticketscripts/main.js.map
+//# sourceMappingURL=https://chq.org/ticketscripts/mainV5.js.map
