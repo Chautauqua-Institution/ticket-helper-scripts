@@ -13,7 +13,7 @@ function ScannerEntryPoint() {
     if (sessionStorage.getItem("pendingUnscan")) {
         const data = JSON.parse(sessionStorage.getItem("pendingUnscan"));
         fetch(
-            "https://tickets-helper.it.chq.org/scan/out/", {
+            "https://tickets-helper.chq.org/scan/out/", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
