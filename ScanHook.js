@@ -1,6 +1,6 @@
-const EVENT_SELECTOR = "body > center > form:nth-child(1) > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td.tab";
-const FORM_SELECTOR = "body > center > form:nth-child(1)";
-const INPUT_SELECTOR = "input[type=text]";
+const EVENT_SELECTOR = "#eventList";
+const FORM_SELECTOR = "#scanForm";
+const INPUT_SELECTOR = "#ticketInput";
 
 let PageName = window.location.pathname;
 switch (PageName) {
@@ -10,17 +10,24 @@ switch (PageName) {
 }
 
 function ScannerEntryPoint() {
+    const scanMode = document.querySelector("#eventList").previousElementSibling.innerText.split("\n")[1];
+    if(scanMode == "OUT"){
+        return;
+    }
     if (sessionStorage.getItem("pendingUnscan")) {
-        const data = JSON.parse(sessionStorage.getItem("pendingUnscan"));
-        fetch(
-            "https://tickets-helper.chq.org/scan/out/", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+        const scanStatus = document.querySelector("#eventList").previousElementSibling.innerText.split("\n")[0];
+        if(scanStatus == "PASS"){
+            const data = JSON.parse(sessionStorage.getItem("pendingUnscan"));
+            fetch(
+                "https://tickets-helper.chq.org/scan/out/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }
+            );
         }
-        );
         sessionStorage.removeItem("pendingUnscan");
     }
 
