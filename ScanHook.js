@@ -43,7 +43,8 @@ function ScannerEntryPoint() {
             "pendingUnscan",
             JSON.stringify({
                 "ticketNumber": document.querySelector(INPUT_SELECTOR).value,
-                "events": events
+                "events": events,
+                "production": window.location.port == "8070" ? false : true
             })
         );
         e.target.submit();
